@@ -1,7 +1,5 @@
 import { useState, useCallback } from "react";
 
-// ── Data ────────────────────────────────────────────────────────────────────
-
 const SYMBOL_SETS = [
   { p1: "X",  p2: "O",  label: "Classic"  },
   { p1: "⚡", p2: "🔥", label: "Energy"   },
@@ -236,9 +234,9 @@ function GameScreen({ config, onBack }) {
   const sym   = SYMBOL_SETS[symIdx];
 
   const [board,   setBoard]   = useState(Array(9).fill(null));
-  const [current, setCurrent] = useState(0); // 0=p1, 1=p2
+  const [current, setCurrent] = useState(0); 
   const [scores,  setScores]  = useState({ p1: 0, p2: 0 });
-  const [winInfo, setWinInfo] = useState(null); // { cells, player } | "draw"
+  const [winInfo, setWinInfo] = useState(null); 
   const [popIdx,  setPopIdx]  = useState(null);
 
   const resetBoard = useCallback(() => {
@@ -324,7 +322,6 @@ function GameScreen({ config, onBack }) {
     };
   };
 
-  // Victory overlay
   const showOverlay = !!winInfo;
   const winSym = winPlayer === 0 ? sym.p1 : sym.p2;
   const overlayEmoji = isDraw ? "🤝" : (winSym.length <= 2 ? winSym : "🏆");
@@ -346,7 +343,7 @@ function GameScreen({ config, onBack }) {
 
   return (
     <div style={{ width:"min(460px,94vw)" }}>
-      {/* Scoreboard */}
+      {}
       <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:18 }}>
         {playerCard(0, "left")}
         <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:6, fontSize:9, letterSpacing:2, textTransform:"uppercase", fontFamily:"'JetBrains Mono',monospace", color:"rgba(255,255,255,.25)", flexShrink:0 }}>
@@ -358,7 +355,7 @@ function GameScreen({ config, onBack }) {
         {playerCard(1, "right")}
       </div>
 
-      {/* Board */}
+      {}
       <div style={{ position:"relative", marginBottom:14 }}>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, padding:10, background:"rgba(8,8,14,.6)", border:"1px solid rgba(255,255,255,.07)", borderRadius:22, backdropFilter:"blur(16px)" }}>
           {Array(9).fill(null).map((_, idx) => {
@@ -381,7 +378,7 @@ function GameScreen({ config, onBack }) {
         </div>
       </div>
 
-      {/* Action bar */}
+      {}
       <div style={{ display:"flex", gap:10 }}>
         <button style={btnStyle(false)} onClick={resetBoard}
           onMouseEnter={e => { e.currentTarget.style.background="rgba(255,255,255,.1)"; e.currentTarget.style.color="#fff"; }}
@@ -395,7 +392,7 @@ function GameScreen({ config, onBack }) {
         </button>
       </div>
 
-      {/* Victory overlay */}
+      {}
       {showOverlay && (
         <div style={{ position:"fixed", inset:0, zIndex:200, background:"rgba(0,0,0,.8)", backdropFilter:"blur(16px) saturate(1.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
           <div style={{ background:"rgba(10,10,18,.92)", border:"1px solid rgba(255,255,255,.1)", borderRadius:28, padding:"48px 40px", textAlign:"center", maxWidth:340, width:"90%", boxShadow:"0 40px 100px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08)", animation:"victoryIn .4s cubic-bezier(.34,1.56,.64,1)" }}>
@@ -425,8 +422,7 @@ export default function App() {
   const [gameConfig, setGameConfig] = useState(null);
 
   const theme = gameConfig ? BG_SETS[gameConfig.bgIdx] : BG_SETS[0];
-
-  // Apply background to body dynamically
+  
   const bodyBg = theme.bg;
 
   return (
