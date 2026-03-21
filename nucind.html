@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic-Tac-Toe</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  :root {
+    --accent: #e8ff45;
+    --accent2: #ff4593;
+    --p1-color: #e8ff45;
+    --p2-color: #ff4593;
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.1);
+    --radius: 18px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: #0a0a0f;
+    color: #f0f0f0;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 24px 16px;
+    transition: background 0.5s ease;
+  }
+
+  /* Theme backgrounds */
+  body.bg-cyber    { background: linear-gradient(135deg, #0a0a0f 0%, #0d0a1f 40%, #120820 100%); --accent: #e8ff45; --accent2: #ff4593; --p1-color: #e8ff45; --p2-color: #ff4593; }
+  body.bg-ocean    { background: linear-gradient(160deg, #020c18 0%, #04213d 50%, #001830 100%); --accent: #00d4ff; --accent2: #0066ff; --p1-color: #00d4ff; --p2-color: #0066ff; }
+  body.bg-forest   { background: linear-gradient(160deg, #020a02 0%, #06200a 50%, #041508 100%); --accent: #6dff4e; --accent2: #00cc66; --p1-color: #6dff4e; --p2-color: #00cc66; }
+  body.bg-sunset   { background: linear-gradient(160deg, #0f0208 0%, #2a0a14 40%, #180608 100%); --accent: #ff9933; --accent2: #ff2266; --p1-color: #ff9933; --p2-color: #ff2266; }
+  body.bg-space    { background: linear-gradient(135deg, #020008 0%, #0a0020 50%, #030012 100%); --accent: #bf7fff; --accent2: #5eaaff; --p1-color: #bf7fff; --p2-color: #5eaaff; }
+  body.bg-lava     { background: linear-gradient(160deg, #150300 0%, #2a0800 45%, #1a0400 100%); --accent: #ff5500; --accent2: #ffcc00; --p1-color: #ff5500; --p2-color: #ffcc00; }
+  body.bg-aurora   { background: linear-gradient(160deg, #010a08 0%, #002a1a 40%, #001a2a 100%); --accent: #00ffcc; --accent2: #aa00ff; --p1-color: #00ffcc; --p2-color: #aa00ff; }
+  body.bg-rose     { background: linear-gradient(135deg, #0f0008 0%, #2a0018 50%, #1a000f 100%); --accent: #ff66aa; --accent2: #ff99cc; --p1-color: #ff66aa; --p2-color: #ff99cc; }
+  body.bg-gold     { background: linear-gradient(160deg, #0d0900 0%, #1f1400 50%, #120e00 100%); --accent: #ffd700; --accent2: #ff8c00; --p1-color: #ffd700; --p2-color: #ff8c00; }
+  body.bg-ice      { background: linear-gradient(160deg, #00080f 0%, #001a2e 50%, #000d1a 100%); --accent: #aaeeff; --accent2: #66ccff; --p1-color: #aaeeff; --p2-color: #66ccff; }
+  body.bg-toxic    { background: linear-gradient(135deg, #030a00 0%, #0a1f00 50%, #061200 100%); --accent: #aaff00; --accent2: #00ffaa; --p1-color: #aaff00; --p2-color: #00ffaa; }
+  body.bg-candy    { background: linear-gradient(160deg, #0f000f 0%, #1f001f 50%, #120012 100%); --accent: #ff44ff; --accent2: #ffaa00; --p1-color: #ff44ff; --p2-color: #ffaa00; }
+  body.bg-midnight { background: linear-gradient(135deg, #000005 0%, #05051a 50%, #02020e 100%); --accent: #4466ff; --accent2: #aaccff; --p1-color: #4466ff; --p2-color: #aaccff; }
+  body.bg-crimson  { background: linear-gradient(160deg, #0a0000 0%, #200000 50%, #150000 100%); --accent: #ff2222; --accent2: #ff8888; --p1-color: #ff2222; --p2-color: #ff8888; }
+
+
+
+
+  /* ── App container ── */
+  .app { position: relative; z-index: 10; width: min(460px, 94vw); }
+
+  /* ── Setup card ── */
+  .setup-screen {
+    background: rgba(8, 8, 14, 0.72);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 28px;
+    padding: 44px 40px 40px;
+    backdrop-filter: blur(28px) saturate(1.4);
+    box-shadow:
+      0 32px 80px rgba(0,0,0,0.6),
+      0 0 0 1px rgba(255,255,255,0.04) inset,
+      0 1px 0 rgba(255,255,255,0.1) inset;
+  }
+
+  .logo {
+    font-size: clamp(30px, 6.5vw, 44px);
+    font-weight: 900;
+    letter-spacing: 6px;
+    text-align: center;
+    margin-bottom: 36px;
+    background: linear-gradient(120deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.7;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+  }
+
+  /* Player inputs */
+  .player-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+
+  .input-group label {
+    display: block;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 8px;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 13px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px;
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+  .input-group input::placeholder { color: rgba(255,255,255,0.18); font-weight: 400; }
+  .input-group.p1 input:focus {
+    border-color: var(--p1-color);
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 0 0 3px rgba(232,255,69,0.08);
+  }
+  .input-group.p2 input:focus {
+    border-color: var(--p2-color);
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 0 0 3px rgba(255,69,147,0.08);
+  }
+
+  /* Symbol picker */
+  .symbol-section { margin-bottom: 26px; }
+  .symbol-grid { display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 4px; }
+  .symbol-grid::-webkit-scrollbar { width: 4px; }
+  .symbol-grid::-webkit-scrollbar-track { background: transparent; }
+  .symbol-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+  .sym-option {
+    width: 54px; height: 54px;
+    border-radius: 14px;
+    border: 1.5px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    transition: all 0.18s;
+  }
+  .sym-option:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.09); transform: translateY(-2px); }
+  .sym-option.active {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 16px -4px var(--accent);
+  }
+  .sym-option .sym-main { font-size: 21px; line-height: 1; }
+  .sym-option .sym-pair { font-size: 10px; display: flex; gap: 2px; line-height: 1; opacity: 0.6; }
+
+  /* Background picker */
+  .bg-section { margin-bottom: 32px; }
+  .bg-grid { display: flex; flex-wrap: wrap; gap: 8px; max-height: 130px; overflow-y: auto; padding-right: 4px; }
+  .bg-grid::-webkit-scrollbar { width: 4px; }
+  .bg-grid::-webkit-scrollbar-track { background: transparent; }
+  .bg-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+  .bg-option {
+    width: 54px; height: 54px;
+    border-radius: 14px;
+    border: 1.5px solid rgba(255,255,255,0.07);
+    cursor: pointer;
+    transition: all 0.18s;
+    position: relative; overflow: hidden;
+  }
+  .bg-option:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.3); }
+  .bg-option.active { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--accent); }
+  .bg-option .bg-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    font-size: 7.5px; text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+    background: rgba(0,0,0,0.65);
+    padding: 3px 0;
+  }
+  .bg-cyber-swatch    { background: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 100%); }
+  .bg-ocean-swatch    { background: linear-gradient(135deg, #030d1c 0%, #003a66 100%); }
+  .bg-forest-swatch   { background: linear-gradient(135deg, #040d04 0%, #0a2a10 100%); }
+  .bg-sunset-swatch   { background: linear-gradient(135deg, #160410 0%, #3a1005 100%); }
+  .bg-space-swatch    { background: linear-gradient(135deg, #020008 0%, #120025 100%); }
+  .bg-lava-swatch     { background: linear-gradient(135deg, #150300 0%, #2a0800 100%); }
+  .bg-aurora-swatch   { background: linear-gradient(135deg, #010a08 0%, #002a1a 60%, #001a2a 100%); }
+  .bg-rose-swatch     { background: linear-gradient(135deg, #0f0008 0%, #2a0018 100%); }
+  .bg-gold-swatch     { background: linear-gradient(135deg, #0d0900 0%, #2a1c00 100%); }
+  .bg-ice-swatch      { background: linear-gradient(135deg, #00080f 0%, #002040 100%); }
+  .bg-toxic-swatch    { background: linear-gradient(135deg, #030a00 0%, #0d2800 100%); }
+  .bg-candy-swatch    { background: linear-gradient(135deg, #0f000f 0%, #280028 100%); }
+  .bg-midnight-swatch { background: linear-gradient(135deg, #000005 0%, #080820 100%); }
+  .bg-crimson-swatch  { background: linear-gradient(135deg, #0a0000 0%, #280000 100%); }
+
+  /* Start button */
+  .start-btn {
+    width: 100%;
+    padding: 17px;
+    background: linear-gradient(120deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.22s;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+  .start-btn::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.2s;
+  }
+  .start-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(0,0,0,0.5); }
+  .start-btn:hover::after { background: rgba(255,255,255,0.12); }
+  .start-btn:active { transform: translateY(-1px); }
+
+  /* ── Game screen ── */
+  .game-screen { display: none; }
+
+  .scoreboard {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .player-card {
+    flex: 1;
+    background: rgba(8,8,14,0.65);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 14px 16px;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .player-card.p1 { border-left: 3px solid var(--p1-color); }
+  .player-card.p2 { border-right: 3px solid var(--p2-color); text-align: right; }
+  .player-card.active {
+    background: rgba(12,12,20,0.8);
+    border-color: rgba(255,255,255,0.14);
+  }
+  .player-card.p1.active { box-shadow: -6px 0 24px -8px var(--p1-color); }
+  .player-card.p2.active { box-shadow: 6px 0 24px -8px var(--p2-color); }
+
+  .player-card .symbol { font-size: 17px; line-height: 1; margin-bottom: 2px; }
+  .player-card .name {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: 0.75;
+  }
+  .player-card .score {
+    font-size: 30px; font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.1;
+  }
+  .player-card.p1 .score, .player-card.p1 .name { color: var(--p1-color); }
+  .player-card.p2 .score, .player-card.p2 .name { color: var(--p2-color); }
+
+  .turn-indicator {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace; color: rgba(255,255,255,0.25);
+    flex-shrink: 0;
+  }
+  #turnText { max-width: 50px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .turn-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.65)} }
+
+  /* Board */
+  .board-wrap { position: relative; margin-bottom: 14px; }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 10px;
+    background: rgba(8,8,14,0.6);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 22px;
+    backdrop-filter: blur(16px);
+  }
+
+  .cell {
+    aspect-ratio: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(28px, 7vw, 50px);
+    transition: background 0.15s, transform 0.15s, border-color 0.15s;
+    user-select: none;
+    position: relative; overflow: hidden;
+  }
+  .cell::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.06) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .cell:hover:not(.taken)::before { opacity: 1; }
+  .cell:hover:not(.taken) { border-color: rgba(255,255,255,0.2); transform: scale(0.96); }
+  .cell.taken { cursor: default; }
+  .cell.p1-cell { color: var(--p1-color); }
+  .cell.p2-cell { color: var(--p2-color); }
+  .cell.win-cell { animation: winPulse 0.55s ease forwards; }
+  @keyframes winPulse { 0%{transform:scale(1)} 35%{transform:scale(1.14)} 65%{transform:scale(0.94)} 100%{transform:scale(1)} }
+  .cell.pop { animation: cellPop 0.28s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes cellPop { 0%{transform:scale(0.3);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+  /* Action bar */
+  .action-bar { display: flex; gap: 10px; }
+  .btn {
+    flex: 1;
+    padding: 13px;
+    background: rgba(8,8,14,0.65);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px;
+    color: rgba(255,255,255,0.8);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(12px);
+  }
+  .btn:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.2); }
+  .btn.primary {
+    background: linear-gradient(120deg, var(--accent), var(--accent2));
+    color: #000; border-color: transparent; font-weight: 900;
+  }
+  .btn.primary:hover { opacity: 0.9; }
+
+  /* Victory overlay */
+  .victory-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(16px) saturate(1.2);
+    align-items: center; justify-content: center;
+  }
+  .victory-overlay.show { display: flex; }
+
+  .victory-card {
+    background: rgba(10,10,18,0.92);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 28px;
+    padding: 48px 40px;
+    text-align: center;
+    max-width: 340px; width: 90%;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08);
+    animation: victoryIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes victoryIn { 0%{transform:scale(0.65);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+  .victory-emoji { font-size: 60px; margin-bottom: 16px; display: block; animation: bounce 0.6s infinite alternate ease-in-out; }
+  @keyframes bounce { from{transform:translateY(0) scale(1)} to{transform:translateY(-10px) scale(1.05)} }
+  .victory-title {
+    font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace; color: rgba(255,255,255,0.35);
+    margin-bottom: 8px;
+  }
+  .victory-name {
+    font-size: 34px; font-weight: 900;
+    background: linear-gradient(120deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 6px; letter-spacing: -0.5px;
+  }
+  .victory-sub {
+    font-size: 12px; color: rgba(255,255,255,0.35);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 32px; letter-spacing: 0.5px;
+  }
+  .victory-btns { display: flex; gap: 10px; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 400px) {
+    .player-inputs { grid-template-columns: 1fr; }
+    .setup-screen { padding: 28px 22px; }
+    .logo { letter-spacing: 3px; }
+  }
+</style>
+</head>
+<body class="bg-cyber">
+
+
+<!-- Setup -->
+<div class="app" id="setupApp">
+  <div class="setup-screen">
+    <div class="logo">TIC · TAC · TOE</div>
+
+    <div class="section-label">Players</div>
+    <div class="player-inputs">
+      <div class="input-group p1">
+        <label>Player 1</label>
+        <input type="text" id="p1name" placeholder="Enter name" maxlength="12">
+      </div>
+      <div class="input-group p2">
+        <label>Player 2</label>
+        <input type="text" id="p2name" placeholder="Enter name" maxlength="12">
+      </div>
+    </div>
+
+    <div class="symbol-section">
+      <div class="section-label">Symbols</div>
+      <div class="symbol-grid" id="symbolGrid"></div>
+    </div>
+
+    <div class="bg-section">
+      <div class="section-label">Background</div>
+      <div class="bg-grid" id="bgGrid"></div>
+    </div>
+
+    <button class="start-btn" onclick="startGame()">START GAME</button>
+  </div>
+</div>
+
+<!-- Game -->
+<div class="app" id="gameApp">
+  <div class="game-screen" id="gameScreen">
+    <div class="scoreboard">
+      <div class="player-card p1 active" id="p1card">
+        <div class="symbol" id="p1sym">X</div>
+        <div class="name" id="p1nameDisplay">P1</div>
+        <div class="score" id="p1score">0</div>
+      </div>
+      <div class="turn-indicator">
+        <div class="turn-dot"></div>
+        <span id="turnText">P1</span>
+      </div>
+      <div class="player-card p2" id="p2card">
+        <div class="symbol" id="p2sym">O</div>
+        <div class="name" id="p2nameDisplay">P2</div>
+        <div class="score" id="p2score">0</div>
+      </div>
+    </div>
+
+    <div class="board-wrap">
+      <div class="board" id="board">
+        <!-- cells injected -->
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn" onclick="resetBoard()">New Round</button>
+      <button class="btn" onclick="backToSetup()">⚙ Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- Victory -->
+<div class="victory-overlay" id="victoryOverlay">
+  <div class="victory-card">
+    <div class="victory-emoji" id="victoryEmoji">🏆</div>
+    <div class="victory-title" id="victoryTitle">WINNER</div>
+    <div class="victory-name" id="victoryName"></div>
+    <div class="victory-sub" id="victorySub"></div>
+    <div class="victory-btns">
+      <button class="btn" onclick="backToSetup()">Menu</button>
+      <button class="btn primary" onclick="resetBoard()">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Symbol sets: [p1symbol, p2symbol, label]
+const SYMBOL_SETS = [
+  { p1: 'X', p2: 'O', label: 'Classic', icon: '✕○' },
+  { p1: '⚡', p2: '🔥', label: 'Energy', icon: '⚡🔥' },
+  { p1: '🐉', p2: '🦄', label: 'Beasts', icon: '🐉🦄' },
+  { p1: '☀️', p2: '🌙', label: 'Cosmos', icon: '☀️🌙' },
+  { p1: '💀', p2: '👾', label: 'Spooky', icon: '💀👾' },
+  { p1: '🍕', p2: '🍔', label: 'Food', icon: '🍕🍔' },
+  { p1: '🗡️', p2: '🛡️', label: 'Battle', icon: '🗡️🛡️' },
+  { p1: '🚀', p2: '🛸', label: 'Space', icon: '🚀🛸' },
+  { p1: '🦁', p2: '🐺', label: 'Wild', icon: '🦁🐺' },
+  { p1: '🌊', p2: '🌪️', label: 'Elements', icon: '🌊🌪️' },
+  { p1: '🍎', p2: '🍊', label: 'Fruits', icon: '🍎🍊' },
+  { p1: '🎸', p2: '🎹', label: 'Music', icon: '🎸🎹' },
+  { p1: '⚽', p2: '🏀', label: 'Sports', icon: '⚽🏀' },
+  { p1: '🤖', p2: '👽', label: 'SciFi', icon: '🤖👽' },
+  { p1: '🌹', p2: '🌸', label: 'Flowers', icon: '🌹🌸' },
+  { p1: '🦊', p2: '🐼', label: 'Cute', icon: '🦊🐼' },
+  { p1: '💎', p2: '👑', label: 'Royale', icon: '💎👑' },
+  { p1: '🧊', p2: '🌋', label: 'Forces', icon: '🧊🌋' },
+  { p1: '🎃', p2: '🎄', label: 'Festive', icon: '🎃🎄' },
+  { p1: '🦋', p2: '🐝', label: 'Nature', icon: '🦋🐝' },
+];
+
+const BG_SETS = [
+  { cls: 'bg-cyber',    label: 'Cyber'    },
+  { cls: 'bg-ocean',    label: 'Ocean'    },
+  { cls: 'bg-forest',   label: 'Forest'   },
+  { cls: 'bg-sunset',   label: 'Sunset'   },
+  { cls: 'bg-space',    label: 'Space'    },
+  { cls: 'bg-lava',     label: 'Lava'     },
+  { cls: 'bg-aurora',   label: 'Aurora'   },
+  { cls: 'bg-rose',     label: 'Rose'     },
+  { cls: 'bg-gold',     label: 'Gold'     },
+  { cls: 'bg-ice',      label: 'Ice'      },
+  { cls: 'bg-toxic',    label: 'Toxic'    },
+  { cls: 'bg-candy',    label: 'Candy'    },
+  { cls: 'bg-midnight', label: 'Midnight' },
+  { cls: 'bg-crimson',  label: 'Crimson'  },
+];
+
+let selectedSymbol = 0;
+let selectedBg = 0;
+let currentPlayer = 0;
+let board = Array(9).fill(null);
+let scores = { p1: 0, p2: 0 };
+let gameOver = false;
+let p1Name = 'Player 1', p2Name = 'Player 2';
+
+const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+// Build symbol picker
+function buildSymbolGrid() {
+  const grid = document.getElementById('symbolGrid');
+  grid.innerHTML = '';
+  SYMBOL_SETS.forEach((set, i) => {
+    const el = document.createElement('div');
+    el.className = 'sym-option' + (i === selectedSymbol ? ' active' : '');
+    el.innerHTML = `<div class="sym-main">${set.p1}</div><div class="sym-pair"><span>${set.p2}</span></div>`;
+    el.title = set.label;
+    el.onclick = () => { selectedSymbol = i; buildSymbolGrid(); };
+    grid.appendChild(el);
+  });
+}
+
+// Build bg picker
+function buildBgGrid() {
+  const grid = document.getElementById('bgGrid');
+  grid.innerHTML = '';
+  BG_SETS.forEach((bg, i) => {
+    const el = document.createElement('div');
+    if (bg.img) {
+      el.className = 'bg-option' + (i === selectedBg ? ' active' : '');
+      el.style.backgroundImage = 'url(' + bg.img + ')';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+    } else {
+      el.className = 'bg-option ' + bg.cls + '-swatch' + (i === selectedBg ? ' active' : '');
+    }
+    el.innerHTML = '<div class="bg-label">' + bg.label + '</div>';
+    el.onclick = () => {
+      selectedBg = i;
+      applyBg(bg.cls);
+      buildBgGrid();
+    };
+    grid.appendChild(el);
+  });
+}
+
+function applyBg(cls) {
+  document.body.className = cls;
+}
+
+function loadScores(n1, n2) {
+  // Always start fresh — scores are session-only
+  scores.p1 = 0;
+  scores.p2 = 0;
+}
+
+function saveScore(role, val) {
+  // Use fixed role keys (ttt_p1 / ttt_p2) so Player 2 can never
+  // overwrite Player 1's score even if they share the same name
+  localStorage.setItem('ttt_' + role, val);
+}
+
+function startGame() {
+  p1Name = document.getElementById('p1name').value.trim() || 'Player 1';
+  p2Name = document.getElementById('p2name').value.trim() || 'Player 2';
+  loadScores(p1Name, p2Name);
+  document.getElementById('setupApp').style.display = 'none';
+  document.getElementById('gameApp').style.display = 'block';
+  document.getElementById('gameScreen').style.display = 'block';
+  updateScoreboard();
+  buildBoard();
+}
+
+function backToSetup() {
+  localStorage.removeItem('ttt_p1');
+  localStorage.removeItem('ttt_p2');
+  scores = { p1: 0, p2: 0 };
+  document.getElementById('victoryOverlay').classList.remove('show');
+  document.getElementById('setupApp').style.display = 'flex';
+  document.getElementById('gameApp').style.display = 'none';
+  document.getElementById('p1name').value = p1Name === 'Player 1' ? '' : p1Name;
+  document.getElementById('p2name').value = p2Name === 'Player 2' ? '' : p2Name;
+  buildSymbolGrid(); buildBgGrid();
+}
+
+function updateScoreboard() {
+  const sym = SYMBOL_SETS[selectedSymbol];
+  document.getElementById('p1sym').textContent = sym.p1;
+  document.getElementById('p2sym').textContent = sym.p2;
+  document.getElementById('p1nameDisplay').textContent = p1Name;
+  document.getElementById('p2nameDisplay').textContent = p2Name;
+  document.getElementById('p1score').textContent = scores.p1;
+  document.getElementById('p2score').textContent = scores.p2;
+  document.getElementById('p1card').classList.toggle('active', currentPlayer === 0);
+  document.getElementById('p2card').classList.toggle('active', currentPlayer === 1);
+  document.getElementById('turnText').textContent = currentPlayer === 0 ? p1Name.split(' ')[0] : p2Name.split(' ')[0];
+}
+
+function buildBoard() {
+  const b = document.getElementById('board');
+  b.innerHTML = '';
+  board = Array(9).fill(null);
+  gameOver = false;
+  currentPlayer = 0;
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.idx = i;
+    cell.onclick = () => handleClick(i);
+    b.appendChild(cell);
+  }
+  updateScoreboard();
+}
+
+function resetBoard() {
+  document.getElementById('victoryOverlay').classList.remove('show');
+  buildBoard();
+}
+
+function handleClick(idx) {
+  if (gameOver || board[idx] !== null) return;
+  const sym = SYMBOL_SETS[selectedSymbol];
+  board[idx] = currentPlayer;
+  const cell = document.querySelector(`[data-idx="${idx}"]`);
+  cell.textContent = currentPlayer === 0 ? sym.p1 : sym.p2;
+  cell.classList.add('taken', currentPlayer === 0 ? 'p1-cell' : 'p2-cell', 'pop');
+
+  const win = checkWin();
+  if (win) {
+    gameOver = true;
+    win.cells.forEach(i => document.querySelector(`[data-idx="${i}"]`).classList.add('win-cell'));
+    const winner = currentPlayer === 0 ? p1Name : p2Name;
+    if (currentPlayer === 0) { scores.p1++; saveScore('p1', scores.p1); }
+    else { scores.p2++; saveScore('p2', scores.p2); }
+    updateScoreboard();
+    setTimeout(() => showVictory(winner, false), 400);
+    return;
+  }
+  if (board.every(c => c !== null)) {
+    gameOver = true;
+    setTimeout(() => showVictory(null, true), 300);
+    return;
+  }
+  currentPlayer = 1 - currentPlayer;
+  updateScoreboard();
+}
+
+function checkWin() {
+  for (const [a,b,c] of WINS) {
+    if (board[a] !== null && board[a] === board[b] && board[b] === board[c]) {
+      return { cells: [a,b,c], player: board[a] };
+    }
+  }
+  return null;
+}
+
+function showVictory(winner, isDraw) {
+  const sym = SYMBOL_SETS[selectedSymbol];
+  const overlay = document.getElementById('victoryOverlay');
+  if (isDraw) {
+    document.getElementById('victoryEmoji').textContent = '🤝';
+    document.getElementById('victoryTitle').textContent = 'IT\'S A DRAW';
+    document.getElementById('victoryName').textContent = 'No Winner';
+    document.getElementById('victorySub').textContent = 'Well played both!';
+  } else {
+    const winSym = currentPlayer === 0 ? sym.p1 : sym.p2;
+    document.getElementById('victoryEmoji').textContent = winSym.length <= 2 ? winSym : '🏆';
+    document.getElementById('victoryTitle').textContent = 'WINNER';
+    document.getElementById('victoryName').textContent = winner;
+    document.getElementById('victorySub').textContent = `Score: ${currentPlayer === 0 ? scores.p1 : scores.p2} | Well played!`;
+  }
+  overlay.classList.add('show');
+}
+
+// ── Clear any stale scores on every page load ──
+(function clearOldScores() {
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('ttt_'))
+    .forEach(k => localStorage.removeItem(k));
+})();
+
+// Init
+buildSymbolGrid();
+buildBgGrid();
+document.getElementById('gameApp').style.display = 'none';
+</script>
+</body>
+</html>
